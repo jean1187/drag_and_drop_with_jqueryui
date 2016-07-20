@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>System Builder</title>
+    <link rel="stylesheet" href="jquery-ui-1.12.0.custom/jquery-ui.css"/>    
+    <script type="text/javascript" src="jquery-ui-1.12.0.custom/external/jquery/jquery.js"></script>
+    <script type="text/javascript" src="jquery-ui-1.12.0.custom/jquery-ui.js"></script>
+    <style> 
+	.principal {
+	    position: absolute;
+	    border: 1px solid #000;
+	    width: 800px;
+	    height: 800px;
+        }
+
+        #toolbox {
+            position: absolute;
+            height: 650px;
+	    border: 1px solid #000;
+            padding: 5pt 5pt 5pt 5pt;
+	    width: 100px;
+	    left: 50px;
+	    top: 50px;
+	    //overflow: scroll
+        }		
+        		
+        #theDrop {
+            position: absolute;
+            width: 500px;
+            height: 650px;
+            padding: 5pt 5pt 5pt 5pt;
+            left: 200px;
+            top: 50px;
+            border: 1px solid black;
+	    overflow: hidden
+        }
+        
+        div h2 {
+            background-color: #9ba9af;
+            font-size: 12pt;
+            text-align: center;
+        }
+	
+	p {
+	    align="center";
+	}
+		
+	.total{
+   	    position: absolute;
+   	    left: 100px;
+   	    top: 750px;
+	    font-size:20pt;
+	}
+	
+	</style>
+
+        <script type="text/javascript">
+    
+        var newDiv;
+    
+        $("document").ready(function() {
+
+        var dialog, form,
+ 
+        // From http://www.whatwg.org/specs/web-apps/current-work/multipage/states-of-the-type-attribute.html#e-mail-state-%28type=email%29
+        //emailRegex = /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/,
+        //allFields = $( [] ).add( name ).add( email ).add( password );
+        tips = $( ".validateTips" );
+ 
+        function updateTips( t ) {
+          tips
+            .text( t )
+            .addClass( "ui-state-highlight" );
+          setTimeout(function() {
+            tips.removeClass( "ui-state-highlight", 1500 );
+          }, 500 );
+        }
+ 
+        function checkLength( o, n, min, max ) {
+          if ( o.val().length > max || o.val().length < min ) {
+            o.addClass( "ui-state-error" );
+            updateTips( "Length of " + n + " must be between " + min + " and " + max + "." );
+            return false;
+          } else {
+            return true;
+          }
+        }
+ 
+        function checkRegexp( o, regexp, n ) {
+          if ( !( regexp.test( o.val() ) ) ) {
+            o.addClass( "ui-state-error" );
+            updateTips( n );
+            return false;
+          } else {
+            return true;
+          }
+        }
+ 
+        function addUser() {
+
+          $('#theDrop').append(newDiv);
+          var nuevo_precio = parseInt(newDiv.attr('precio'));
+	  var subtotal_precio = parseInt($('.total').text().replace('$',''));
+  	  var total = subtotal_precio+nuevo_precio;
+          $('.total').html('$'+total);					          
+
+          switch(device_type) {
+            case "www":
+                var isp    = $( "#isp" ).val();
+                var values = 'device_type='+device_type+'&isp='+isp;
+                break;
+            case "modem":
+                var brand  = $( "#brand" ).val();
+                var model  = $( "#model" ).val();
+                var type   = $( "#type" ).val();
+                var price  = $( "#price" ).val();
+                var values = 'device_type='+device_type+'&brand='+brand+'&model='+model+'&type='+type+'&price='+price;
+                break;
+            case "router":
+                var brand  = $( "#brand" ).val();
+                var model  = $( "#model" ).val();
+                var band   = $( "#band" ).val();
+                var price  = $( "#price" ).val();            
+                var values = 'device_type='+device_type+'&brand='+brand+'&model='+model+'&band='+band+'&price='+price; 
+                break;
+            case "switch":
+                var brand           = $( "#brand" ).val();
+                var model           = $( "#model" ).val();
+                var number_of_ports = $( "#number_of_ports" ).val();
+                var price           = $( "#price" ).val();
+                var values          = 'device_type='+device_type+'&brand='+brand+'&model='+model+'&number_of_ports='+number_of_ports+'&price='+price; 
+                break;
+            case "microc":
+                var brand  = $( "#brand" ).val();
+                var model  = $( "#model" ).val();
+                var price  = $( "#price" ).val();
+                var values = 'device_type='+device_type+'&brand='+brand+'&model='+model+'&price='+price; 
+                break;
+            case "bombillo":
+                var brand  = $( "#brand" ).val();
+                var model  = $( "#model" ).val();
+                var price  = $( "#price" ).val();
+                var values = 'device_type='+device_type+'&brand='+brand+'&price='+price; 
+                break;
+          }
+          $.ajax({url:'ajax_test.php',data: values,success: function(data) {x=data;},type:'GET'});         
+    
+ 
+          var valid = true;
+          //allFields.removeClass( "ui-state-error" );
+  
+          if ( valid ) {
+            //$( "#users tbody" ).append("<tr>"+"<td>"+name.val()+"</td>"+"<td>"+email.val()+"</td>"+"<td>"+password.val()+"</td>"+"</tr>");
+            dialog.dialog( "close" );
+          }
+          return valid;
+    }
+ 
+    dialog = $( "#dialog-form" ).dialog({
+      autoOpen: false,
+      //height: 400,
+      width: 400,
+      modal: true,
+      buttons: {
+        "Add Equipment to System": addUser,
+        Cancel: function() {
+          dialog.dialog( "close" );
+        }
+      },
+      close: function() {
+        //form[ 0 ].reset();
+        //allFields.removeClass( "ui-state-error" );
+      }
+    });
+ 
+    form = dialog.find( "form" ).on( "submit", function( event ) {
+      event.preventDefault();
+      addUser();
+    });
+
+	    $('#toolbox').css('border-width','1px');
+						
+	    $(".dropped-item").draggable({
+		  cursor: "move", 
+		  helper: "clone",
+	    });	
+
+	    $(".ui-widget-content").draggable({
+		  cursor: "move", 
+		  helper: "clone",
+	    });	
+
+            $("#theDrop").droppable({
+                accept: ".ui-widget-content",
+                activeClass: "ui-state-hover",
+                hoverClass: "ui-state-active",
+                tolerance: "fit",
+		over: function( event, ui ) {		$( ".ui-widget-content" ).draggable({ grid: [ 20, 20 ] }); },
+                activate: function (evt, ui) {          $(this).find("h2").css("background-color", "cornsilk");    },
+                deactivate: function (evt, ui) {        $(this).find("h2").css("background-color", "red");         },
+                drop: function(evt, ui) {
+                    device_type = ui.draggable.attr('id');
+                    switch(device_type) {
+                      case "www":
+                        $("#dialog-form").dialog("option","title","New ISP");
+                        $("#dialog-form").load('www.html'); // Loads the Questions for the user in the userform form
+                        name = $( "#name" );
+                        price = $( "#price" );
+                        break;
+                      case "modem":
+                        $("#dialog-form").dialog("option","title","New MODEM");
+                        $("#dialog-form").load('modem.html'); // Loads the Questions for the user in the userform form
+                        name = $( "#name" );
+                        price = $( "#price" );
+                        break;
+                      case "router":
+                        $("#dialog-form").dialog("option","title","New ROUTER");
+                        $("#dialog-form").load('router.html'); // Loads the Questions for the user in the userform form
+                        name = $( "#name" );
+                        price = $( "#price" );
+                        break;
+                      case "switch":
+                        $("#dialog-form").dialog("option","title","New SWITCH");
+                        $("#dialog-form").load('switch.html'); // Loads the Questions for the user in the userform form
+                        brand = $( "#brand" );
+                        number_of_ports = $( "#number_of_ports" );
+                        price = $( "#price" );                        
+                        break; 
+                      case "microc":
+                        $("#dialog-form").dialog("option","title","New MicroController");
+                        $("#dialog-form").load('microc.html'); // Loads the Questions for the user in the userform form
+                        brand = $( "#brand" );
+                        model = $( "#model" );
+                        price = $( "#price" );                          
+                        break;
+                      case "bombillo":
+                        $("#dialog-form").dialog("option","title","New LIGHT");
+                        $("#dialog-form").load("bombillo.html"); // Loads the Questions for the user in the userform form
+                        name = $( "#name" );
+                        price = $( "#price" );
+                        break;  
+                    }
+                    dialog.dialog( "open" ); // This opens the dialog box with the form in it
+                    
+		    newDiv = $(ui.helper).clone(false);
+                    newDiv.removeClass();
+		    newDiv.addClass('dropped-item');
+                    ejeX = parseInt($("#theDrop").css("left").replace("px",""));
+                    ejeY = parseInt($("#theDrop").css("top").replace("px",""));
+                    ejeXX = parseInt($("#toolbox").css("left").replace("px",""));
+                    ejeYY = parseInt($("#toolbox").css("top").replace("px",""));
+                    X = parseInt(ui.position.left);
+                    Y = parseInt(ui.position.top);
+                    newDiv.css({position:'absolute', left: X-ejeX+ejeXX, top: Y-ejeY+ejeYY});
+		    newDiv.attr('id', 'y');
+		    newDiv.css('width', '50px');
+		    newDiv.draggable({
+		      cursor: "move", 
+		      grid: [ 20, 20 ],
+		      containment: '#theDrop',
+		    });
+                    //$(this).append(newDiv); // This one shows the cloned item in the Box
+                    //var nuevo_precio = parseInt(newDiv.attr('precio'));
+		    //var subtotal_precio = parseInt($('.total').text().replace('$',''));
+		    //var total = subtotal_precio+nuevo_precio;
+                    //$('.total').html('$'+total);					
+                }
+            });
+        });
+    </script>
+</head>
+<body>
+
+<div id="dialog-form" title="">
+
+</div>
+
+
+
+<div class="principal">
+
+    <div id="theDrop" >
+        <p>Drop Target</p>
+    </div>
+	
+    <div id="toolbox">
+	<p>Tool Box</p>
+	<center><img src="images/www.png"      width="50" height="50" id="www"      class="ui-widget-content" precio="500"><br>ISP<br><br></center>
+	<center><img src="images/modem.png"    width="50" height="50" id="modem"    class="ui-widget-content" precio="500"><br>MODEM<br><br></center>
+        <center><img src="images/router.png"   width="50" height="50" id="router"   class="ui-widget-content" precio="700"><br>ROUTER<br><br></center>
+        <center><img src="images/switch.png"   width="50" height="50" id="switch"   class="ui-widget-content" precio="500"><br>SWITCH<br><br></center>
+	<center><img src="images/uc.png"       width="50" height="50" id="microc"   class="ui-widget-content" precio="500"><br>&microController<br><br></center>
+	<center><img src="images/bombillo.png" width="50" height="50" id="bombillo" class="ui-widget-content" precio="500"><br>Light<br><br></center>
+     </div>	
+     <br><div class="total">$0</div>
+</div>
+	
+</body>
+</html>
